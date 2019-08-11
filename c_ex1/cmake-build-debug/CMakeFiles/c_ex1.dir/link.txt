@@ -1,0 +1,1 @@
+/usr/bin/cc -g   CMakeFiles/c_ex1.dir/DrumExperiment.c.o  -o c_ex1 -lm 

@@ -1,0 +1,20 @@
+c_ex1
+roeyby
+307920116
+######
+
+our first exercise was to implement discrete convolution in c language,
+while applying certain conditions to the input, enabling repeated convolution,
+and displaying the output as a histogram.
+
+we were required that the actual convolution will have a runtime complexity
+of no more than O(n^2), other than that we had no runtime limitations.
+
+in simple cases, as in short arrays, the implementation of a discrete convolution
+is pretty straightforward and simple, just multiplying and adding couples
+of numbers from both arrays on different degrees of overlapping, generalizing the
+convolution (as we did in this exercise) was a bit hard, but after programming
+with concrete values and THEN generalizing them it became clear enough.
+
+besides that, the main challenge was getting comfortable with the syntax,
+first time and all.

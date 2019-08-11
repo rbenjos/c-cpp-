@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/cs/usr/roeyby/CLionProjects/c_ex1/DrumExperiment.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+math.h
+-
+
