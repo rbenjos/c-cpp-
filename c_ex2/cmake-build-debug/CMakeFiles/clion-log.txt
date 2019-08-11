@@ -1,11 +1,4 @@
-C:\Users\rbenj\.CLion2019.2\system\cygwin_cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /cygdrive/c/Users/rbenj/CLionProjects/c_ex2
--- The C compiler identification is GNU 7.4.0
--- Check for working C compiler: /usr/bin/cc
--- Check for working C compiler: /usr/bin/cc -- works
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Detecting C compile features
--- Detecting C compile features - done
+/usr/local/APP/jetbrains/clion/2018.2.1/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /cs/usr/roeyby/CLionProjects/c_ex2
 -- Configuring done
 -- Generating done
--- Build files have been written to: /cygdrive/c/Users/rbenj/CLionProjects/c_ex2/cmake-build-debug
+-- Build files have been written to: /cs/usr/roeyby/CLionProjects/c_ex2/cmake-build-debug

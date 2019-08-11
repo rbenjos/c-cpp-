@@ -3,6 +3,7 @@
 #include <math.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <string.h>
 #include "queue.h"
 #include "queue.c"
 
@@ -20,15 +21,17 @@
  *  this structure defines a node in our graph. it has a key,
  *  a queue of son's keys and another queue of sons nodes
  */
-typedef struct
+typedef struct Node Node;
+struct Node
 {
     // each node should have a key and sonsKeys, so:
     int key;
-    Queue *sonsKeys;
-    Queue *sonsNodes;
+    int numberOfSons;
+    int numberOfParents;
+    Node** sons;
+    Node** parents;
 
-
-} Node;
+};
 
 /**
  * this structure defines a digraph, specifically a tree, (although initially we dont
@@ -38,9 +41,11 @@ typedef struct
 typedef struct
 {
 
-    Node *root;
-    int vertices;
+    Node* root;
+    Node* vertices;
+    int numOfVertices;
     int edges;
+    int numOfEdges;
     int maxDepth;
     int minDepth;
     int diatmeter;
@@ -83,11 +88,13 @@ typedef struct
  */
 int handleArgValidity(int argc)
 {
-    if ( argc != 3 )
+    if (argc != 4)
     {
         fprintf(stderr, "Usage: TreeAnalyzer <Graph File Path> <First Vertex> <Second Vertex>\n");
         exit(EXIT_FAILURE);
-    } else{
+    }
+    else
+    {
         return NUMBER_OF_ARGUMENTS_VALID;
     }
 }
@@ -104,11 +111,11 @@ int handleArgValidity(int argc)
  * @param filename the adress of the file we are validating
  * @return 1 if exists, exits the program if not
  */
-int checkFileExists(const char *filename)
+int checkFileExists(const char* filename)
 {
-    FILE *file;
+    FILE* file;
     file = fopen(filename, "r");
-    if ( file )
+    if (file)
     {
         fclose(file);
         return FILE_EXISTS;
@@ -140,15 +147,27 @@ int checkFileExists(const char *filename)
  * @param string the string representing the integer
  * @return the integer represented if its valid. nothing if not
  */
-int returnIntIfValid(const char *string)
+int returnIntIfValid(const char string[])
 {
+    printf("starting to validate integer\n");
+    printf("string received is %s\n",string);
+
     int counter = 0;
     int number = 0;
-    while ( string[counter] != '\0' )
+//    char currentChar;
+    while ((string[counter] != '\0') && string[counter] != '\n')
     {
-        char currentChar = string[counter];
-        int digit = currentChar - '0';
-        if ( 0 <= digit && digit <= 9 )
+
+//        char currentChar = (string[counter]);
+
+        printf("char is %c\n",string[counter]);
+
+        int digit = string[counter] - '0';
+        printf("digit is %d\n",digit);
+
+
+
+        if (0 <= digit && digit <= 9)
         {
             number = number * 10 + digit;
         }
@@ -157,6 +176,8 @@ int returnIntIfValid(const char *string)
             fprintf(stderr, "Invalid input\n");
             exit(EXIT_FAILURE);
         }
+
+        counter++;
     }
     return number;
 }
@@ -172,15 +193,15 @@ int returnIntIfValid(const char *string)
  * @param filename the file we are checking
  * @return 1 if its not empty, nothing if it is empty.
  */
-int checkFileNotEmpty(const char *filename)
+int checkFileNotEmpty(const char* filename)
 {
-    FILE *file;
+    FILE* file;
     file = fopen(filename, "r");
 
     // if the file is empty the end of it will be 0
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
-    if ( 0 != size )
+    if (0 != size)
     {
         fclose(file);
         return FILE_IS_NOT_EMPTY;
@@ -221,21 +242,51 @@ int checkFileNotEmpty(const char *filename)
  * @param currentLine the line of text representing its children
  * @return 1 if successful, nothing if not
  */
-int giveChildren(Node *node, const char *currentLine)
+int buildVertex(Node* nodes, const char currentLine[], int index)
 {
-
-    /* first we will make a queue for the sons's keys (because we dont necessarily have
-    all of their nodes yet */
-
-    char *currentNum = NULL;
-    node->sonsKeys = allocQueue();
+    int currentInt;
+    // nodes are allready numbered and were allocated space for their sons and parents so we just need to connect
+    printf("starting to build vertex\n");
+    char* currentNum = NULL;
+    int isLeaf = 0;
 
     // then we will read each individual string (hopefully its an integer
+    int counter = 0;
     currentNum = strtok(currentLine, INPUT_DELIMS);
-    while ( currentNum != NULL)
+
+
+
+    while (currentNum != '\0' && currentNum != '\n')
     {
-        int currentInt = returnIntIfValid(currentNum);
-        enqueue(node->sonsKeys, currentInt);
+        printf("current number is: %s \n",currentNum);
+        // each has an array of pointers, we need to set those pointers to the
+        // their sons actual nodes
+
+        if (*currentNum == '-')
+        {
+            isLeaf = 1;
+        }
+        else
+        {
+            currentInt = returnIntIfValid(currentNum);
+            printf("current int is: %d \n",currentInt);
+
+            /*PRETTY PLEASE WORK thanks!!!*/
+            *(((nodes + index)->sons) + counter) = (nodes + currentInt);
+            (nodes + index)->numberOfSons++;
+            *(((nodes + currentInt)->parents) + index) = (nodes + index);
+            (nodes + currentInt)->numberOfParents++;
+
+        }
+
+        counter ++;
+        currentNum = strtok(NULL, INPUT_DELIMS);
+        // now we point to that child
+        // now we make the child point to us
+    }
+
+    if (isLeaf && counter > 1){
+        // todo: handle error!
     }
     return 0;
 }
@@ -244,35 +295,83 @@ int giveChildren(Node *node, const char *currentLine)
  * this function reads the text file, and builds the base for the graph, meaning
  * a data structure to host all the information about the vertices and connections
  * @param filename the file we are reading
- * @return 1 if successful, 0 if not
+ * @return the graph that was read if valid, nothing if not
  */
-int readTreeFile(const char *filename)
+Graph* buildGraphFromTxt(const char* filename)
 {
     // opening the file
 
-    FILE *file;
+    printf("opening file... \n");
+
+    FILE* file;
     file = fopen(filename, "r");
     int numberOfLine = 0;
-
-    char *currentLine = NULL;
+    char currentLine[MAX_CHARS_IN_LINE];
     // first handling n
 
+
+    /* we will do 2 runs on the text file. the first one will be to count all the lines
+     * after we counted, we can allocate the right amount of memory to our graph
+     * (as we know the number of vertices). after that we will make an array of nodes
+     * the index symbolizing the key, after that we will go over the file again, and
+     * parse every line individually and connect the vertices (we can pass that array's
+     * pointer as an argument)*/
+
+
+    // the first run:
+
+    printf("starting to read... \n");
     fgets(currentLine, MAX_CHARS_IN_LINE, file);
-    numberOfLine ++;
+    printf("reading n... \n");
     int n = returnIntIfValid(currentLine);
+    printf("the number of vertices declared is %d\n",n);
+    Node* nodes = (Node*) (malloc(n * sizeof(Node*)));
 
-    // now reading the rest of them iteratively
-
-    while ( fgets(currentLine, MAX_CHARS_IN_LINE, file))
+    for (; n --;)
     {
-        numberOfLine ++;
-        Node *node = malloc(sizeof(Node));
-        node->key = numberOfLine;
-        giveChildren(node, currentLine);
 
-        /* parse each line individually, save each as a node by the line number
-           and save the content of the line as the children */
+        printf("allocating space for vertex number %d\n",n);
+        (nodes + n)->key = n;
+        (nodes + n)->numberOfParents = 0;
+        (nodes + n)->numberOfSons = 0;
+
+        (nodes + n)->sons = (Node*) (malloc(n * sizeof(Node*)));
+        (nodes + n)->parents = (Node*) (malloc(n * sizeof(Node*)));
     }
+
+    printf("finished allocating\n");
+    // now to allocate the necessary a mount for our graph
+
+
+    // time for the second run:
+
+    numberOfLine = 0;
+//    free(currentLine);
+//    currentLine = malloc(MAX_CHARS_IN_LINE* sizeof(char));
+
+
+    while (fgets(currentLine, MAX_CHARS_IN_LINE, file))
+    {
+        printf("the text in line number %d is : %s \n",numberOfLine,currentLine);
+        printf("building vertex number %d \n",numberOfLine);
+        buildVertex(nodes, currentLine, numberOfLine);
+        numberOfLine ++;
+
+    }
+
+    Graph* graph = malloc(sizeof(Graph));
+    graph->vertices = nodes;
+    graph->numOfVertices = n;
+
+    /* now we're supposed to have all the vertices connected. we can feed them into
+     * a graph data structure and return a pointer to that graph*/
+
+    return graph;
+}
+
+int checkIfGraphIsTree(Graph* graph)
+{
+
 }
 
 
@@ -297,7 +396,7 @@ int readTreeFile(const char *filename)
 int getMaximalDepth(Graph graph)
 {
     int maximalDepth = 0;
-    Node *root = graph.root;
+    Node* root = graph.root;
     return maximalDepth;
 }
 
@@ -373,6 +472,17 @@ int output(Graph graph, Node u, Node v)
     Queue path = getPath(graph, u, v);
 
 
+}
+
+int main(int argc, char* argv[])
+{
+    printf("number of arguments is: %d \n", argc);
+    handleArgValidity(argc);
+    printf("filename is: %s\n", argv[1]);
+    checkFileExists(argv[1]);
+    checkFileNotEmpty(argv[1]);
+    buildGraphFromTxt(argv[1]);
+    return 0;
 }
 
 // after finishing the exercise:

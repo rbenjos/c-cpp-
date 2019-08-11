@@ -1,8 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/c_ex2.dir/main.c.o"
   "c_ex2.pdb"
-  "c_ex2.exe"
-  "libc_ex2.dll.a"
+  "c_ex2"
 )
 
 # Per-language clean rules from dependency scanning.

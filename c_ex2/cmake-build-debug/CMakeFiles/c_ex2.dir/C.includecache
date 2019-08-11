@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/cs/usr/roeyby/CLionProjects/c_ex2/main.c
+stdio.h
+-
+math.h
+-
+errno.h
+-
+stdlib.h
+-
+string.h
+-
+queue.h
+/cs/usr/roeyby/CLionProjects/c_ex2/queue.h
+queue.c
+/cs/usr/roeyby/CLionProjects/c_ex2/queue.c
+
+/cs/usr/roeyby/CLionProjects/c_ex2/queue.c
+stdio.h
+-
+stdlib.h
+-
+assert.h
+-
+limits.h
+-
+queue.h
+/cs/usr/roeyby/CLionProjects/c_ex2/queue.h
+
+/cs/usr/roeyby/CLionProjects/c_ex2/queue.h
+
