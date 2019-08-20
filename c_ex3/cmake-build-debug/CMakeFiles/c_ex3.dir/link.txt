@@ -1,0 +1,1 @@
+/usr/bin/cc -g   CMakeFiles/c_ex3.dir/infi.c.o CMakeFiles/c_ex3.dir/NumericalAnalyzer.c.o  -o c_ex3 -lm 
