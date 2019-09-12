@@ -1,0 +1,41 @@
+cpp_ex2
+roeyby
+307920116
+######
+
+the subject of this exercises was cpp object oriented programming, inheritence, polymorphism,
+and the rule of 5
+(which wasnt used after all because it was unnecessary to implement those methods).
+we practiced those subject through the exercise of constructing fractals
+and printing them to the screen.
+
+the design goes as follows: we have an abstract class Fractal (has some pure virtual methods and
+a protected constructor), because the mechanism of constructing a fractal is very similar
+in all fractals, most of the methods were allready implemented in the fractal class.
+the subclasses "Carpet","Sieve" and "Dust" only had different unit sizes, constructors, and
+patterns (the last 2 are the things that actually differentiate between the fractals)
+
+getting fractal objects from all 3 classes was possible using the fractal factory class
+(as learned in OOP)
+and polymorphism was achieved using pointers. i cant declare an abstract object, but i can
+definitely declare a pointer to it. so i decided to make a stack of pointers to fractals
+my DAST of choice. the stack was also useful because i could effortlessly print the fractals
+backwards.
+
+it is worth noting again that i didnt had to implement copy constructors, operators, or destructors.
+the default ones were good enough.
+
+the algorithm used to determine whether a pair of coordinates on a fractal should be marked
+or not uses the following premise:
+
+- on any dimension, these coordinates should fall within the marked "subfractals"
+
+meaning, for example, that if i were to take a sieve of dimension 3, i didnt actually need to look
+at all 64 cells to know if my pair should be marked or not. for starters, if it falls on an empty
+subfractal, i can stop right there.
+
+this is true in every dimension. and so all i have to do is to check if that holds, and then
+"zoom in " to the relevant subfractal, and do that again.
+if it allways holds, the coordinates should be marked.
+
+no other difficulties other than that.

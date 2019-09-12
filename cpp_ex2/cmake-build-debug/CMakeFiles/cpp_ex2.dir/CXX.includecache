@@ -1,0 +1,42 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/cs/usr/roeyby/CLionProjects/cpp_ex2/Fractal.cpp
+Fractal.h
+/cs/usr/roeyby/CLionProjects/cpp_ex2/Fractal.h
+iostream
+-
+
+/cs/usr/roeyby/CLionProjects/cpp_ex2/Fractal.h
+cmath
+-
+vector
+-
+
+/cs/usr/roeyby/CLionProjects/cpp_ex2/FractalDrawer.cpp
+iostream
+-
+string
+-
+list
+-
+algorithm
+-
+iterator
+-
+Fractal.h
+/cs/usr/roeyby/CLionProjects/cpp_ex2/Fractal.h
+filesystem
+-
+fstream
+-
+assert.h
+-
+stack
+-
+
