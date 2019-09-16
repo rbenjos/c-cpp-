@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/cs/usr/roeyby/CLionProjects/cpp_ex3/HashMap.hpp
+iostream
+-
+vector
+-
+algorithm
+-
+
+/cs/usr/roeyby/CLionProjects/cpp_ex3/main.cpp
+iostream
+-
+HashMap.hpp
+/cs/usr/roeyby/CLionProjects/cpp_ex3/HashMap.hpp
+

@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 #ifndef CPP_EX3_HASHMAP_HPP
 #define CPP_EX3_HASHMAP_HPP
@@ -23,7 +24,7 @@ public:
     // default
     HashMap() : _lowerLF(0.25), _upperLF(0.75), _sizeVar(0), _capacityVar(16)
     {
-        map = vector<vector<pair<KeyT, ValueT>>>();
+        map = new vector<pairKV>[_capacityVar];
     }
 
     HashMap(int lowerLF, int upperLF) : _lowerLF(lowerLF), _upperLF(upperLF), _sizeVar(0), _capacityVar(16)
@@ -31,7 +32,7 @@ public:
 
     }
 
-    HashMap(vector<ValueT> keys, vector<KeyT> values)
+    HashMap(vector<ValueT> keys, vector<KeyT> values) : _lowerLF(0.25), _upperLF(0.75), _sizeVar(0), _capacityVar(16)
     {
         HashMap();
         for ( int i : indices(keys))
@@ -52,7 +53,7 @@ public:
     }
 
     // move
-    HashMap(HashMap&& other)
+    HashMap(HashMap&& other) noexcept
     {
         _lowerLF = exchange(other._lowerLF, 0);
         _upperLF = exchange(other._upperLF, 0);
@@ -65,7 +66,10 @@ public:
 
     // destructor
 
-    ~HashMap();
+    ~HashMap()
+    {
+        delete[] map;
+    }
 
     int size() const
     { return _sizeVar; }
@@ -78,19 +82,28 @@ public:
 
     bool insert(KeyT key, ValueT value)
     {
-        int index = hash(key);
-        for ( pair<KeyT, ValueT> pair : map[index] )
+
+        // check containment
+        if ( ! containsKey(key))
         {
-            if ( pair.first == key )
-            { return false; }
+            _sizeVar ++;
+//            if ( loadfactor() <= _lowerLF )
+//            {
+//                reHash(0);
+//            }
+            if ( _upperLF <= loadfactor())
+            {
+                reHash(1);
+            }
+
+            int index = hash(key);
+            map[index].push_back(pair<KeyT, ValueT>(key, value));
+            return true;
         }
-        map[index].push_back(pair < KeyT, ValueT > (key, value));
-        return true;
+        else
+        { return false; }
 
 
-        //TODO: more places that it can go wrong?
-
-        // TODO: rehash if needed
     }
 
     bool containsKey(KeyT key)
@@ -128,26 +141,29 @@ public:
 
     bool erase(KeyT key)
     {
-        int index = hash(key);
-        if ( map[index].empty())
-        { return false; }
-        else
+        // check containment
+        if ( containsKey(key))
         {
-            int i = 0;
-            for ( pair<KeyT, ValueT> pair : map[index] )
+            _sizeVar --;
+
+            int index = hash(key);
+            vector<pairKV> vec = map[index];
+
+            for ( int i = 0; i < vec.size(); i ++ )
             {
-                if ( pair.first == key )
+                if ( vec[i].first == key )
                 {
-                    map[index].erase(i);
+                    map[index].erase(vec.begin() + i);
+                    if ( loadfactor() <= _lowerLF )
+                    {
+                        reHash(0);
+                    }
                     return true;
                 }
-                i ++;
             }
-            { return false; }
-
-
-            // TODO: rehash if needed
         }
+        else
+        { return false; }
 
     }
 
@@ -162,7 +178,31 @@ public:
 
     }
 
-    iterator<KeyT, ValueT> iterator() const;
+    double loadfactor()
+    {
+        double size1 = size();
+        double capacity1 = capacity();
+        return (size1 / capacity1);
+    }
+
+//    iterator<KeyT, ValueT> iterator() const
+//    {
+//
+//    }
+
+    void printMap()
+    {
+        for ( int i = 0; i < capacity(); i ++ )
+        {
+            vector<pairKV> vec = map[i];
+            cout << "vec num " << i << " of size : " << vec.size() << ": ";
+            for ( pairKV pair : vec )
+            {
+                cout << "** key: " << pair.first << " value: " << pair.second << "**, ";
+            }
+            cout << "\n";
+        }
+    }
 
     HashMap operator=(HashMap& other);
 
@@ -194,30 +234,43 @@ public:
     class iterator
     {
     public:
-        iterator(HashMap *hashMap) : hashMap(hashMap)
-        {}
+        iterator(HashMap *hashMap = nullptr) : hashMap(hashMap), arrIndex(0)
+        {
+            currVector = hashMap->map[0];
+            iter = currVector.begin();
+        }
 
         iterator& operator*()
         {
-            return *(hashMap)[arrIndex][vecIndex];
+            return *iter;
+        }
+
+        iterator *operator->()
+        {
+            return iter;
         }
 
         iterator& operator++()
         {
-            if ( hashMap->map[arrIndex].size() == (vecIndex + 1))
+            while ( *iter == currVector.end())
             {
                 arrIndex ++;
-                vecIndex = 0;
-                while(hashMap->map[arrIndex].empty()){arrIndex++;}
+                currVector = hashMap->map[arrIndex];
+                iter = currVector.begin();
             }
-            else
-            { vecIndex ++; }
+
+            iter ++;
+
         }
 
     private:
 
-        HashMap* hashMap;
-        int arrIndex, vecIndex;
+        HashMap *hashMap;
+        vector<pairKV> currVector;
+        typename vector<pairKV>::iterator *iter;
+        int arrIndex;
+
+
     };
 
 private:
@@ -227,9 +280,37 @@ private:
         return key & (_capacityVar - 1);
     }
 
-    bool reHash();
+    bool reHash(int factor)
+    {
 
-    HashMap& reSize();
+        // resizing the capacity
+        int oldCap = _capacityVar;
+        switch (factor)
+        {
+            case 0:
+                _capacityVar /= 2;
+                break;
+            case 1:
+                _capacityVar *= 2;
+                break;
+            default:
+                break;
+        }
+
+        vector<pairKV> *newMap = new vector<pairKV>[_capacityVar];
+        for ( int i = 0; i < oldCap; i ++ )
+        {
+            vector<pairKV> vec = map[i];
+            for ( pairKV pair : vec )
+            {
+                int hashCode = hash(pair.first);
+                newMap[hashCode].push_back(pair);
+            }
+        }
+        delete[] map;
+        map = newMap;
+
+    }
 
     // load factors
     double _lowerLF;
@@ -241,7 +322,7 @@ private:
     int _capacityVar;
 
     // the map itself
-    vector<pair<KeyT, ValueT>> map[];
+    vector<pair<KeyT, ValueT>> *map;
 };
 
 #endif //CPP_EX3_HASHMAP_HPP
