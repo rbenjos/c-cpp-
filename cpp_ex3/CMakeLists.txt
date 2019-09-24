@@ -3,4 +3,4 @@ project(cpp_ex3)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(cpp_ex3 main.cpp HashMap.hpp)
+add_executable(cpp_ex3 main.cpp HashMap.hpp SpamDetector.cpp)

@@ -6,17 +6,29 @@
 
 #IncludeRegexTransform: 
 
-/cs/usr/roeyby/CLionProjects/cpp_ex3/HashMap.hpp
+/cygdrive/c/Users/rbenj/Desktop/cpp_ex3/cpp_ex3/HashMap.hpp
 iostream
 -
 vector
 -
 algorithm
 -
+exception
+-
 
-/cs/usr/roeyby/CLionProjects/cpp_ex3/main.cpp
+/cygdrive/c/Users/rbenj/Desktop/cpp_ex3/cpp_ex3/SpamDetector.cpp
+HashMap.hpp
+/cygdrive/c/Users/rbenj/Desktop/cpp_ex3/cpp_ex3/HashMap.hpp
+string
+-
 iostream
 -
-HashMap.hpp
-/cs/usr/roeyby/CLionProjects/cpp_ex3/HashMap.hpp
+fstream
+-
+algorithm
+-
+sstream
+-
+regex
+-
 
