@@ -42,6 +42,15 @@ int stringToInt(std::string &str)
 }
 
 
+int countRegexInText(const std::string& text, const std::string& reg)
+{
+    std::regex regex(reg);
+    auto begin = std::sregex_iterator(text.begin(),text.end(),regex);
+    auto end = std::sregex_iterator();
+    int count = std::distance(begin,end);
+    return count;
+}
+
 HashMap<std::string, int> *buildHashMap(const std::string &fileName)
 {
     std::cout << "######### building map  ###########\n";
@@ -165,9 +174,35 @@ bool detectSpam(const std::string &fileName, HashMap<std::string, int> *map, int
     }
     std::cout << "file not empty\n";
 
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    std::string fileString = buffer.str();
+//    std::stringstream buffer;
+//    buffer << file.rdbuf();
+//    std::string fileString = buffer.str();
+
+    int sum=0;
+
+    HashMap<std::string,int>::iterator iter = map->begin();
+    std::cout<<(*iter).first;
+//    while(iter != map->end())
+//    {
+//
+//        std::cout << (*iter).first;
+//        ++iter;
+//    }
+    std::string expression;
+    int numOfAppearances;
+//
+//    while(iter != map->end())
+//    {
+//        expression =(*iter).first;
+//        numOfAppearances = countRegexInText(fileString,expression);
+//        sum+= numOfAppearances*(*iter).second;
+//        ++iter;
+//    }
+
+    return (sum>=threshold);
+
+
+
     // read all of it into one string
     // iterate over map
     // look for keys using regex
